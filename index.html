@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate and convert land prices in Haryana between per square foot and per acre">
+    <title>Haryana Land Price Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --primary-hover: #3a5a8f;
+            --accent-color: #ffd166;
+            
+            /* Light theme */
+            --bg-light: #f5f7fa;
+            --card-bg-light: #ffffff;
+            --text-light: #333333;
+            --border-light: #e1e4e8;
+            
+            /* Dark theme */
+            --bg-dark: #1a1a2e;
+            --card-bg-dark: #16213e;
+            --text-dark: #e0e0e0;
+            --border-dark: #2a2a3c;
+            
+            /* Common */
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg-light);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .calculator-card {
+            background-color: var(--card-bg-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        body.dark-mode h1 {
+            color: var(--accent-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        body.dark-mode input {
+            border-color: var(--border-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .input-wrapper select {
+            appearance: none;
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        body.dark-mode .input-wrapper select {
+            border-color: var(--border-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .input-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .input-wrapper::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius);
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover, .btn:focus {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .conversion-results {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .result-card {
+            flex: 1;
+            background-color: rgba(74, 111, 165, 0.1);
+            padding: 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .result-card {
+            background-color: rgba(255, 209, 102, 0.1);
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        body.dark-mode .result-value {
+            color: var(--accent-color);
+        }
+
+        .history-section {
+            margin-top: 2rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .clear-btn:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .history-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .history-card {
+            background-color: var(--card-bg-light);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .history-card {
+            background-color: var(--card-bg-dark);
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .history-card-header {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .history-date {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.875rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+        .history-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .history-value {
+            font-weight: 500;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(0, 0, 0, 0.5);
+            font-style: italic;
+        }
+
+        body.dark-mode .empty-history {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        footer {
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        /* Show error message when input has error class */
+        input.error + .error-message {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .conversion-results {
+                flex-direction: column;
+            }
+            
+            .calculator-card {
+                padding: 1.5rem;
+            }
+            
+            .history-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Haryana Land Price Calculator</h1>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <main>
+            <div class="calculator-card">
+                <div class="input-group">
+                    <label for="priceInput">Enter Land Price</label>
+                    <input type="number" id="priceInput" placeholder="Enter price value" min="0" step="0.01">
+                    <div class="error-message" id="priceError">Please enter a valid price</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="unitType">Select Unit Type</label>
+                    <div class="input-wrapper">
+                        <select id="unitType">
+                            <option value="sqft">₹ per Square Foot</option>
+                            <option value="acre">₹ per Acre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" id="calculateBtn">Calculate Conversion</button>
+
+                <div class="conversion-results">
+                    <div class="result-card">
+                        <div class="result-label">Price per Square Foot</div>
+                        <div class="result-value" id="sqftResult">₹ 0.00</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Price per Acre</div>
+                        <div class="result-value" id="acreResult">₹ 0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <h2>Conversion History</h2>
+                    <button class="clear-btn" id="clearHistoryBtn">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                </div>
+                <div class="history-cards" id="historyContainer">
+                    <!-- History cards will be added here -->
+                    <div class="empty-history" id="emptyHistory">No conversion history yet</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Thought and Created by Vipul © <span id="currentYear"></span> | Enhanced Version</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Constants
+        const ACRE_TO_SQFT = 43560;
+        const STORAGE_KEY = 'landPriceHistory';
+        
+        // DOM Elements
+        const priceInput = document.getElementById('priceInput');
+        const unitType = document.getElementById('unitType');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const sqftResult = document.getElementById('sqftResult');
+        const acreResult = document.getElementById('acreResult');
+        const historyContainer = document.getElementById('historyContainer');
+        const emptyHistory = document.getElementById('emptyHistory');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const toast = document.getElementById('toast');
+        const priceError = document.getElementById('priceError');
+        const currentYear = document.getElementById('currentYear');
+
+        // Set current year
+        currentYear.textContent = new Date().getFullYear();
+
+        // Theme handling
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            themeToggle.innerHTML = isDarkMode ? 
+                '<i class="fas fa-sun"></i>' : 
+                '<i class="fas fa-moon"></i>';
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format decimal number
+        function formatDecimal(number) {
+            return new Intl.NumberFormat('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
+        }
+
+        // Show toast notification
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = isError ? 'toast error show' : 'toast show';
+            
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+
+        // Validate input
+        function validateInput() {
+            const price = parseFloat(priceInput.value);
+            
+            if (isNaN(price) || price <= 0) {
+                priceInput.classList.add('error');
+                return false;
+            }
+            
+            priceInput.classList.remove('error');
+            return true;
+        }
+
+        // Calculate conversion
+        function calculate() {
+            if (!validateInput()) {
+                return;
+            }
+            
+            const price = parseFloat(priceInput.value);
+            const unit = unitType.value;
+            
+            let perSqFt, perAcre;
+            
+            if (unit === 'sqft') {
+                perSqFt = price;
+                perAcre = price * ACRE_TO_SQFT;
+            } else {
+                perAcre = price;
+                perSqFt = price / ACRE_TO_SQFT;
+            }
+            
+            // Display results
+            sqftResult.textContent = `₹ ${formatDecimal(perSqFt)}`;
+            acreResult.textContent = formatCurrency(perAcre);
+            
+            // Save to history
+            saveToHistory(price, unit, perSqFt, perAcre);
+            
+            // Show success toast
+            showToast('Conversion calculated successfully!');
+        }
+
+        // Save to history
+        function saveToHistory(inputPrice, inputUnit, perSqFt, perAcre) {
+            const record = {
+                id: Date.now(),
+                inputPrice,
+                inputUnit,
+                perSqFt,
+                perAcre,
+                timestamp: new Date().toISOString()
+            };
+            
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            history.unshift(record);
+            
+            // Limit history to 20 items
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            displayHistory();
+        }
+
+        // Display history
+        function displayHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            
+            if (history.length === 0) {
+                emptyHistory.style.display = 'block';
+                return;
+            }
+            
+            emptyHistory.style.display = 'none';
+            
+            // Clear existing history cards (except the empty message)
+            const cards = historyContainer.querySelectorAll('.history-card');
+            cards.forEach(card => card.remove());
+            
+            // Add history cards
+            history.forEach(record => {
+                const date = new Date(record.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                const unitLabel = record.inputUnit === 'sqft' ? 'per sq ft' : 'per acre';
+                
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `
+                    <div class="history-card-header">
+                        <span class="history-date">${formattedDate}</span>
+                        <button class="delete-btn" data-id="${record.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="history-details">
+                        <div class="history-item">
+                            <span class="history-label">Input:</span>
+                            <span class="history-value">₹ ${formatDecimal(record.inputPrice)} ${unitLabel}</span>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-label">Per sq ft:</span>
+                            <span class="history-value">₹ ${formatDecimal(record.perSqFt)}</span>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-label">Per acre:</span>
+                            <span class="history-value">${formatCurrency(record.perAcre)}</span>
+                        </div>
+                    </div>
+                `;
+                
+                historyContainer.appendChild(card);
+                
+                // Add delete event listener
+                const deleteBtn = card.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function() {
+                    deleteHistoryItem(record.id);
+                });
+            });
+        }
+
+        // Delete history item
+        function deleteHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            
+            displayHistory();
+            showToast('Item removed from history');
+        }
+
+        // Clear all history
+        function clearAllHistory() {
+            if (confirm('Are you sure you want to clear all conversion history?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                displayHistory();
+                showToast('All history cleared');
+            }
+        }
+
+        // Event Listeners
+        calculateBtn.addEventListener('click', calculate);
+        
+        priceInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+        
+        priceInput.addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+        
+        clearHistoryBtn.addEventListener('click', clearAllHistory);
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Initialize
+        initTheme();
+        displayHistory();
+    </script>
+</body>
+</html>
